@@ -1,0 +1,2 @@
+# Package Management and installing software
+Welcome to this practical session where you will dive into the world of Linux package management on an AWS EC2 instance running Ubuntu. This lesson is crafted to provide you with the necessary skills to install, manage, and verify software applications using the Advanced Packaging Tool (apt) and manage service statuses.
