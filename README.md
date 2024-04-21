@@ -184,26 +184,65 @@ sudo apt-get install nginx
 ```
 sudo systemctl status nginx
 ```
-The nginx service should be 
-4. **Configuring Firewall**
-If your EC2 instance has UFW firewall enabled, you need to allow HTTP and HTTPS traffic
-```
-sudo ufw allow 'Nginx Full'
-```
+The nginx service should be running by default. 
 
-5. Test Web Server
+4. **Test Web Server**
+
 Use the `curl` command to test that Nginx is correctly handling HTTP requests.
 ```
 curl http://localhost
 ```
 
+If the nginx is installed and running correctly, you should see the nginx welcome page. 
+But wait, what is `localhost`?
+localhost is a hostname that refers to the current computer you are using. It's a loopback address, which means it directs network requests back to your own computer. When you run curl http://localhost, you're essentially telling your system to connect to itself as if it were connecting to a website on the internet.
+
+## Exercise 5: Developing a Bash Script for EC2 Management
+
+**Objective:**
+Create a bash script that leverages AWS CLI to manage EC2 instances effectively. This script will perform several actions, including listing EC2 instances, connecting to a selected instance, and verifying the installation of key software like Nginx and Docker.
+
+**1. Check for AWS CLI Installation**
+```
+#!/bin/bash
+
+if ! type "aws" > /dev/null; then
+    echo "aws cli is not installed. Please install and configure it first."
+    exit 1
+fi
+```
+Shebang `(#!/bin/bash)`: Specifies the script should be run using Bash.
+`type "aws"`: Checks if the AWS CLI command is available on the system.
+Redirection `(> /dev/null)`: Redirects output to `/dev/null` to avoid displaying it.
+Condition `(if !)`: If AWS CLI is not installed, it prints a message and exits the script with a status code of 1 (indicating an error).
+
+**2. Parse and Check Input Argument**
+```
+echo "Fetching running EC2 instances.."
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 <aws-profile>."
+    exit 1
+fi
+
+profile_name=$1
+```
+
+Check `([ -z "$1" ])`: Verifies if the first command-line argument (`$1`) is provided. If not, it shows the correct usage of the script and exits.
+
+Variable Assignment `profile_name=$1`: Stores the first command-line argument in the variable `profile_name`, which is used to specify the AWS profile.
+
+**3. List Running EC2 Instances**
+
+```
+aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" \
+  --query "Reservations[*].Instances[*].{ID:InstanceId,Type:InstanceType,State:State.Name}" \
+  --profile "$profile_name" --output table
+```
+
+c.d
+
 # Key Points to Remember
-
-**1. Script Permissions and the Use of Shebang (#!)**
-Scripts need to be executable to run. Using `chmod +x scriptname.sh` changes the script's permissions, making it executable. The shebang `(#!)` at the beginning of scripts specifies the interpreter, ensuring scripts run under the correct environment.
-
-** Capturing and Processing User Input:**
-User input handling, through read commands or script parameters, enables interactive scripts and dynamic execution paths based on user decisions. It enhances the script's flexibility and user-friendliness.
 
 
 # Commands Reference
