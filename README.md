@@ -105,6 +105,8 @@ sudo apt-get install \
   curl \
   software-properties-common
 ```
+If prompted for consent, type 'Y' (Yes)
+A popup informing about pending kernel update may show up. Press enter to agree for restarting necessary services (like cron).
 
 **3. Add Docker’s Official GPG Key**
 Import Docker's official GPG key to ensure the integrity and authenticity of the packages you install
@@ -144,10 +146,11 @@ sudo apt-get install docker-ce
 3. Verify Docker is Installed Correctly
 
 ```
-sudo docker run hello-world
+sudo systemctl status docker
 ```
 
-Run the Hello World container to verify that Docker is installed correctly
+Check the installation by verifying that Docker daemon is running.
+The message should say that the Docker daemon is running.
 
 **Summary**
 You now understand how to add a new repository to your Ubuntu system, a crucial skill for installing software not available in the default Ubuntu repositories.
@@ -156,6 +159,43 @@ We walked through installing Docker using the official Docker repository. This m
 
 You also learned how to use commands like apt-transport-https, curl, and software-properties-common to manage software sources securely.
 
+## Exercise 4: Installing nginx
+**Objective** 
+In this exercise, you will install Nginx on your Ubuntu EC2 instance. Nginx is a tool that helps deliver web pages to people who visit your website. It’s known for being very efficient and easy to set up. You can use Nginx in two main ways:
+
+1. **As a Web Server:** Nginx can directly send out web pages when someone visits your site. This is useful for showing static content, which includes images, HTML files, and stylesheets that don’t change often.
+2. **As a Reverse Proxy:** Sometimes, you might have complex applications running on your server that create web pages dynamically (these could be shopping carts, dynamic forms, etc.). Nginx can manage the requests from visitors and pass them to these more complex applications in the background, then deliver the applications' responses back to the visitors. This helps in managing traffic more efficiently and keeping things secure.
+
+**What are backend services?**
+These are programs or services running on a server that aren't directly accessed by users but instead support the front-facing part of a website or web application, handling tasks like database management, user authentication, and more.
+By installing Nginx, you’ll get hands-on experience with a versatile tool that can both serve simple websites and manage complex web applications.
+
+1. **Update Package List**
+Ensure your package lists are up to date to avoid missing out on the latest software versions
+```
+sudo apt-get update
+```
+2. **Install Nginx**
+Install Nginx using the `apt-get` command. This will install Nginx and any required dependencies:
+```
+sudo apt-get install nginx
+```
+3. **Verify Installation**
+```
+sudo systemctl status nginx
+```
+The nginx service should be 
+4. **Configuring Firewall**
+If your EC2 instance has UFW firewall enabled, you need to allow HTTP and HTTPS traffic
+```
+sudo ufw allow 'Nginx Full'
+```
+
+5. Test Web Server
+Use the `curl` command to test that Nginx is correctly handling HTTP requests.
+```
+curl http://localhost
+```
 
 # Key Points to Remember
 
