@@ -240,18 +240,83 @@ aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" \
   --profile "$profile_name" --output table
 ```
 
-c.d
+**AWS CLI Command**  Uses `aws ec2 describe-instances` to fetch details about running instances.
+**Filters** Only includes instances that are currently running
+**Query** Formats the output to show Instance ID, Instance Type, and State using a custom query.
+**Profile** Uses the AWS profile specified by the user. This line is optional! As you probably have only one profile configured (you can check with `cat ~/.aws/config`) you don't need to specify which profile to use.
+**Output Format** Displays the information in a table format.
+
+**4. Get User Input for Instance ID**
+
+1. We need to ask the user which instance we want to log into. 
+```
+read -p "Enter the instance id: " instance_id
+```
+**Note** the input is saved to instance_id variable
+
+2. Fetch the instance address
+```
+instances=$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" \
+  --query "Reservations[*].Instances[*].[InstanceId,PublicDnsName]" \
+  --profile "$profile_name" --output text)
+
+instance_address=$(echo "$instances" | awk -v id="$instance_id" '$1 == id { print $2 }')
+```
+
+**Fetch Details:** Same AWS CLI command as before but adjusted to retrieve the Public DNS Name along with the Instance ID.
+
+**Store in Variable:** The output is stored in `instances` variable
+
+**Extract Address:** Uses `awk` to search through the instances for the given instance ID and extracts the corresponding Public DNS Name, storing it in instance_address.
+
+As you see, we use `awk` which is text-processing tool. 
+
+[Click here](https://docs.google.com/document/d/1hlWW84lfOfHyDWWdLq2zClIfWlE7tz0wQhzjhgPLs7I/edit?usp=sharing) and refresh your knowledge about basic processing in bash.
+
+After that, 
+
+[Click here](https://docs.google.com/document/d/1YDXJZZvaI-9cyHB8B1Zys-fQTgMf57VQaIFhLhn1ow4/edit?usp=sharing) and try re-creating first 3 examples on your EC2 access.log file using `awk`
+
+Check out this informative article on `awk` tool and how to use it. Believe us, this is very common and it's good to be proficient in using and understanding `awk` as it often is already installed on the Linux distributions you will be working with.
+
+https://www.educative.io/blog/awk-tutorial
+
+**5.Connect to the Instance via SSH**
+```
+echo "Connecting to Instance $instance_id at address: $instance_address"
+ssh -o IdentitiesOnly=yes -i "ec2-instance-key.pem" ubuntu@${instance_address} "nginx -v; docker -v"
+if [ $? -ne 0 ]; then
+    echo "Error occurred when connecting to EC2 instance. Check your SSH key, instance ID, and network settings."
+    exit 1
+fi
+echo "Verification complete."
+```
+
+**SSH Command:** Connects to the EC2 instance using SSH with the specified private key and runs commands to check the versions of Nginx and Docker.
+
+**Error Handling:** Checks the exit status of the SSH command. If it fails, it prints an error message and exits.
+
+**Completion Message** Indicates that the verification is complete if no errors occur.
+
+When you have finished this script, launch it inside the directory, where you have your `ec2-instance-key.pem` (the EC2 instance private key). Otherwise, it won't start. 
+
+**Objective**
+The script should connect to the instance we were working on and check if all software is installed. 
 
 # Key Points to Remember
+
+**AWS CLI Installation and Profile Configuration:** Ensure that the AWS CLI is correctly installed and configured on your system. Using different profiles allows managing multiple configurations and AWS accounts from the same computer.
+**Command Line Argument Handling:** Properly handling input arguments enhances the flexibility and usability of scripts.
+**SSH Connections:** Understand how to securely connect to EC2 instances using SSH.
+**Script Error Handling:** Implementing robust error handling in scripts can prevent the script from executing unintended actions and provide clear feedback to the user about what went wrong.
 
 
 # Commands Reference
 
 | Command | Description |
 | ------ | ------ |
-| `ssh -i ~/.ssh/hero_key hero@Your-Instance-IP` | Connects to an EC2 instance using SSH with the specified key and user. |
-| `vim ec2_info.sh` | Opens the Vim editor to create or edit a script file named ec2_info.sh. |
-| `chmod +x ec2_info.sh` | Makes the script executable. |
-| `./ec2_info.sh <option>` | Runs the script |
-| `curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"` | Requests a new token for accessing the EC2 instance metadata with a specified TTL (Time To Live). |
-| `curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/` | Uses the obtained token to fetch metadata from the EC2 instance. |
+| `type "aws"` | Checks if the AWS CLI is available on the system. |
+| `aws ec2 describe-instances` | Lists EC2 instances based on specified filters and outputs properties like Instance ID and Public DNS Name. |
+| `read -p` | Prompts the user for input and stores it in a variable. |
+| `ssh -i "key.pem" user@host` | Connects to an EC2 instance using SSH with a specified private key |
+| `if [ $? -ne 0 ]` | Checks the exit status of the last executed command to handle errors. |
