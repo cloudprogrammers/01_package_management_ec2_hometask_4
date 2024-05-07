@@ -275,7 +275,7 @@ As you see, we use `awk` which is text-processing tool.
 
 After that, 
 
-[Click here](https://docs.google.com/document/d/1YDXJZZvaI-9cyHB8B1Zys-fQTgMf57VQaIFhLhn1ow4/edit?usp=sharing) and try re-creating first 3 examples on your EC2 access.log file using `awk`
+[Click here](https://www.educative.io/blog/awk-tutorial) and try re-creating first 3 examples on your EC2 access.log file using `awk`
 
 Check out this informative article on `awk` tool and how to use it. Believe us, this is very common and it's good to be proficient in using and understanding `awk` as it often is already installed on the Linux distributions you will be working with.
 
